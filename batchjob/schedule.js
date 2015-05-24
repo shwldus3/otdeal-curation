@@ -9,9 +9,9 @@ var curation = require('./curation');
 // 분 시 일 월 요일 년
 // (0-59) (0~23) (1~31) (1~12) (0~7):0(또는7)이 일요일.
 
-var cronStyle = '* * * * *'; // 매 분마다 실행.
+var cronStyle = '5 * * * *'; // 매 분마다 실행.
 var j3 = schedule.scheduleJob(cronStyle, function(){
-	logger.info('1 분마다 실행');
+	logger.info('5 분마다 실행');
 	curation.curationAlgorithm(function(err){
 		if(err){
 			logger.info('Fail!!!!!!!!!!!!!!!');
@@ -20,4 +20,4 @@ var j3 = schedule.scheduleJob(cronStyle, function(){
 		}
    });
 });
-logger.info('1 분마다 실행할 준비 완료');
+logger.info('5 분마다 실행할 준비 완료');

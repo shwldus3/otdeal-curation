@@ -40,7 +40,7 @@ exports.curationAlgorithm = function(callback){
 
 		async.each(userIdArr, function(user_id, callback){
 			// logger.debug('async userIdArr', userIdArr);
-			logger.debug('user_id', user_id);
+			logger.info('user_id', user_id);
 			// click된 item_id 각각을 받아온다.
 			ClickModel.find({user_id:user_id},{_id:0,item_id:1,user_id:1,regtime:1}).exec(function(err, docs){
 				clickArr = docs;

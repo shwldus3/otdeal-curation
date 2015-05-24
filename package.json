@@ -1,0 +1,23 @@
+{
+  "name": "otdeal_curation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "SeongWon Yeom, JiYeon Noh.",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^1.0.0",
+    "date-utils": "^1.2.17",
+    "express": "^4.12.4",
+    "hashmap": "^2.0.3",
+    "moment": "^2.10.3",
+    "mongoose": "^4.0.3",
+    "mongoose-auto-increment": "^4.0.0",
+    "mysql": "^2.6.2",
+    "node-schedule": "^0.2.7",
+    "winston": "^1.0.0"
+  }
+}

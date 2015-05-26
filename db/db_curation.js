@@ -223,8 +223,9 @@ exports.getCurationInfo = function(interestArr, user_id, callback){
 							// 	if(err) logger.error(err);
 							// });
 							var item_id = related_row.item_id;
-							sql = "insert into TBCRT (user_id, item_id, score, crt_regdate) values(?, ?, ?, now())";
-							conn.query(sql, [user_id, item_id, total_score], function(err, row) {
+							sql = "insert into TBCRT (user_id, item_id, interest_id, relative_id, score, euclidean_score, interest_weight, 
+								crt_regdate) values(?, ?, ?, ?, ?, ?, ?, now())";
+							conn.query(sql, [user_id, item_id, interest_info.item_id, item_id, total_score, euclidean_score, interest_weight], function(err, row) {
 								if (err){
 									logger.debug('6-1) 이미 존재하는 데이터');
 								}else{

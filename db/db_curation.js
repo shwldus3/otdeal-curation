@@ -118,14 +118,14 @@ exports.getCurationInfo = function(interestArr, user_id, callback){
 				deleteUserCurationInfo(user_id, conn, callback);
 			},
 			function(err, callback){
-				// logger.debug('0) 에러만 없으면 Clustering, Euclidean, DB 처리 - ' + err);
+				logger.debug('0) 에러만 없으면 Clustering, Euclidean, DB 처리 - ' + err);
 				getStyleCluster(user_id, interestArr, conn, callback);
 			}
 		],
-		function(err, result){
+		function(err){
 			if(err) logger.error(err);
 			conn.release();
-			callback(null, result);
+			callback(null);
 		});
 	});
 
@@ -143,7 +143,7 @@ exports.getCurationInfo = function(interestArr, user_id, callback){
 				result = true;
 			}
 			// logger.debug('0) result - ' + result);
-			callback(err, result);
+			callback(null, err);
 		});
 	}
 
@@ -165,21 +165,20 @@ exports.getCurationInfo = function(interestArr, user_id, callback){
 				// logger.debug('1) Style 클러스터링 - ' + interest_row[0]);
 				// if(related_rows[0]) logger.debug('1) related_rows: ' + 'Y');
 				// else logger.debug('1) related_rows: ' + 'N');
-
 				if(related_rows[0]){
 					// (2) ~ (5)
-					setEucliAfterSzCluster(user_id, interest_row, related_rows, conn, function(err){
+					// setEucliAfterSzCluster(user_id, interest_row, related_rows, conn, function(err){
 						if(err) logger.error(err);
-						callback(err);
-					});
+						callback(null);
+					// });
 				}else{
-					callback(err);
+					callback(null);
 				}
 			});
 			// callback(null);
 		}, function(err){
 			if(err) logger.error(err);
-			callback(null, err);//에러가 없으면 null, 있으면 정보 담김
+			callback(null);//에러가 없으면 null, 있으면 정보 담김
 		});//end_ayncEach
 	}//end_getStyleCluster(function)
 
@@ -243,13 +242,13 @@ exports.getCurationInfo = function(interestArr, user_id, callback){
 					}//end_if
 				}, function(err){
 					if(err) logger.error(err);
-					callback(err);
+					callback(null);
 				});//end_asyncEach
 			}
 		],
 		function(err){
 			if(err) logger.error(err);
-			callback(err);
+			callback(null);
 		});//end_asyncWaterfall
 
 

@@ -79,7 +79,7 @@ exports.curationAlgorithm = function(callback){
 					}
 				}, function(err, result) {
 			    	if(err) logger.error(err);
-			    	// logger.debug('result_time', result);
+			    	logger.debug('result_time', result);
 			    	// callback(null, result);
 
 			    	// 항목가중치 적용

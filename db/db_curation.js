@@ -110,7 +110,7 @@ exports.getCurationInfo = function(interestArr, user_id, callback){
 	pool.getConnection(function (err, conn) {
 		if(err) logger.error(err);
 		logger.debug('interestArr', interestArr);
-		logger.debug('user_id', user_id);
+		// logger.debug('user_id', user_id);
 
 		async.waterfall([
 			function(callback){
@@ -118,7 +118,7 @@ exports.getCurationInfo = function(interestArr, user_id, callback){
 				deleteUserCurationInfo(user_id, conn, callback);
 			},
 			function(err, callback){
-				logger.debug('0) 에러만 없으면 Clustering, Euclidean, DB 처리 - ' + err);
+				// logger.debug('0) 에러만 없으면 Clustering, Euclidean, DB 처리 - ' + err);
 				getStyleCluster(user_id, interestArr, conn, callback);
 			}
 		],
@@ -137,12 +137,12 @@ exports.getCurationInfo = function(interestArr, user_id, callback){
 		var sql = "delete from TBCRT where user_id = ?";
 		conn.query(sql, [user_id], function(err, row) {
 			if (err) logger.error(err);
-			logger.debug('0) 사용자의 추천정보 초기화 - ' + user_id);
+			// logger.debug('0) 사용자의 추천정보 초기화 - ' + user_id);
 			var result = false;
 			if(row.affectedRows == 1){
 				result = true;
 			}
-			logger.debug('0) result - ' + result);
+			// logger.debug('0) result - ' + result);
 			callback(err, result);
 		});
 	}
@@ -162,8 +162,8 @@ exports.getCurationInfo = function(interestArr, user_id, callback){
 			var sql = "select A.item_id, count(A.item_id) as sty_cnt, A.item_name, A.size_name, A.item_saleprice, A.item_grcd from (select itm1.item_id, itm1.item_name, itm1.item_price, itm1.item_saleprice, sty1.sty_cd, itm1.size_name, itm1.item_grid, itm1.item_grcd from TBITM itm1, TBSTYI sty1 where sty1.sty_cd IN (select si1.sty_cd from TBSTYI si1, TBSTY sty1 where si1.item_id=? and sty1.sty_gubun='A' and si1.sty_cd = sty1.sty_cd) and itm1.item_id = sty1.item_id) as A, (select itm2.item_id, itm2.item_name, sty2.sty_cd, itm2.size_name, itm2.item_grid, itm2.item_grcd from TBITM itm2, TBSTYI sty2 where sty2.sty_cd IN (select si2.sty_cd from TBSTYI si2, TBSTY sty2 where si2.item_id=? and sty2.sty_gubun='B' and si2.sty_cd = sty2.sty_cd) and itm2.item_id = sty2.item_id) as B where A.item_id = B.item_id group by item_id";
 			conn.query(sql, [interest_row[0], interest_row[0]], function(err, related_rows) { //related_rows = 스타일 연관 있는 아이템 정보
 				if (err) logger.error(err);
-				logger.debug('1) Style 클러스터링 - ' + interest_row[0]);
-				if(related_rows[0]) logger.debug('1) related_rows: ' + 'Y');
+				// logger.debug('1) Style 클러스터링 - ' + interest_row[0]);
+				// if(related_rows[0]) logger.debug('1) related_rows: ' + 'Y');
 				// else logger.debug('1) related_rows: ' + 'N');
 
 				if(related_rows[0]){
@@ -197,7 +197,7 @@ exports.getCurationInfo = function(interestArr, user_id, callback){
 				var sql = "select itm.item_id, count(itm.item_id) as sty_cnt , itm.item_saleprice, itm.size_name from TBITM itm, TBSTYI si, TBSTY sty where itm.item_id=si.item_id and itm.item_id=? and sty.sty_cd = si.sty_cd and sty.sty_gubun='A' group by itm.item_id";//필요한 정보 : 가격, 사이즈
 				conn.query(sql, interest_item_id, function(err, interest_info_row) {//interest_info = 관심아이템 정보
 					if (err) logger.error(err);
-					logger.debug('2) 관심 아이템 정보추출 - ' + interest_item_id);
+					// logger.debug('2) 관심 아이템 정보추출 - ' + interest_item_id);
 					// logger.debug('2) interest_info: ', interest_info_row[0].item_id, interest_info_row[0].sty_cnt, interest_info_row[0].item_saleprice, interest_info_row[0].size_name);
 					callback(null, interest_info_row[0]);
 				});
@@ -210,26 +210,26 @@ exports.getCurationInfo = function(interestArr, user_id, callback){
 
 							// 4)관심-연관 Euclidean 계산
 							var euclidean_score = calculateEucli(parseInt(interest_info.item_saleprice)/1000, parseInt(interest_info.sty_cnt), parseInt(related_row.item_saleprice)/1000, parseInt(related_row.sty_cnt));//Euclidean 연관도
-							logger.debug('4) euclidean_score(연관도): ' + euclidean_score);
+							// logger.debug('4) interest_weight(관심도): ' + interest_weight);
+							// logger.debug('4) euclidean_score(연관도): ' + euclidean_score);
 							// logger.debug('관심 아이템: ' + interest_info.item_id);
 							// logger.debug('연관 아이템: ' + related_row.item_id);
 
 							// 5) 관심도-연관도 거리 계산
 							var total_score = calculateDistance(interest_weight, euclidean_score);
-							logger.debug('5) total_score(관심도-연관도 거리 계산): ' + total_score);
+							// logger.debug('5) total_score(관심도-연관도 거리 계산): ' + total_score);
 
 							// 6) DB Select - Insert (중복 아이템은 비교하여 높은 점수로 저장)
 							// setItemScore(user_id, related_row.item_id, total_score, function(err){
 							// 	if(err) logger.error(err);
 							// });
 							var item_id = related_row.item_id;
-							sql = "insert into TBCRT (user_id, item_id, interest_id, relative_id, score, euclidean_score, interest_weight, 
-								crt_regdate) values(?, ?, ?, ?, ?, ?, ?, now())";
-							conn.query(sql, [user_id, item_id, interest_info.item_id, item_id, total_score, euclidean_score, interest_weight], function(err, row) {
+							sql = "insert into TBCRT (user_id, item_id, interest_id, score, euclidean_score, interest_weight, crt_regdate) values(?, ?, ?, ?, ?, ?, now())";
+							conn.query(sql, [user_id, item_id, interest_info.item_id, total_score, euclidean_score, interest_weight], function(err, row) {
 								if (err){
-									logger.debug('6-1) 이미 존재하는 데이터');
+									// logger.debug('6-1) 이미 존재하는 데이터');
 								}else{
-									logger.debug('6-1) DB Insert into TBCRT');
+									// logger.debug('6-1) DB Insert into TBCRT');
 									// logger.debug('6-1) user_id: ' + user_id + ', item_id: ' + item_id + ', total_score: ' + total_score);
 									// logger.debug('6-1) result (1이면 정상): ' + row.affectedRows);
 								}
@@ -312,7 +312,7 @@ exports.getCurationInfo = function(interestArr, user_id, callback){
 				related_size_name : 연관 아이템 사이즈명
 		 */
 		var sizeFiltering = function(interest_size_name, related_size_name){
-			logger.debug('3) 관심-연관 size 클러스터링');
+			// logger.debug('3) 관심-연관 size 클러스터링');
 			// logger.debug('3) interest_size_name: ' + interest_size_name + ', related_size_name: ' + related_size_name);
 			var pass_yn = true;
 			// if(!interest_size_name || !related_size_name) logger.error("fail");
@@ -351,7 +351,7 @@ exports.getCurationInfo = function(interestArr, user_id, callback){
 				related item : x2, y2
 		 */
 		var calculateEucli = function(x1, y1, x2, y2){
-			logger.debug('4) 관심-연관 Euclidean 계산');
+			// logger.debug('4) 관심-연관 Euclidean 계산');
 			// logger.debug('4) interest_item_saleprice: ' + x1 + ', interest_sty_cnt: ' + y1 + ', related_item_saleprice: ' + x2 + ', related_sty_cnt: ' + y2);
 			var eucli = 1 / Math.sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
 			return eucli;
@@ -364,7 +364,7 @@ exports.getCurationInfo = function(interestArr, user_id, callback){
 				y : euclidean_score
 		 */
 		var calculateDistance = function(x, y){
-			logger.debug('5) 관심도-연관도 거리 계산');
+			// logger.debug('5) 관심도-연관도 거리 계산');
 			// logger.debug('5) interest_weight: ' + x + ', euclidean_score: ' + y);
 			return Math.sqrt(x*x + y*y);
 		};

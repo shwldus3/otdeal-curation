@@ -38,13 +38,17 @@ exports.curationAlgorithm = function(callback){
 		    }
 		);
 
+		// userIdArr.push("qwerty");
+		// userIdArr.push("4MyIav");
+
 		async.each(userIdArr, function(user_id, callback){
 			// logger.debug('async userIdArr', userIdArr);
-			logger.info('user_id', user_id);
+			// logger.info('user_id', user_id);
 			// click된 item_id 각각을 받아온다.
-			ClickModel.find({user_id:user_id},{_id:0,item_id:1,user_id:1,regtime:1}).exec(function(err, docs){
+			ClickModel.find({user_id:user_id},{_id:0,item_id:1,regtime:1}).exec(function(err, docs){
+				// console.log("mongodb user_id", user_id);
 				clickArr = docs;
-				// logger.debug('clickArr', clickArr);
+				// console.log('clickArr뀨우우우', clickArr);
 			}); // MongoDB
 
 			// bsk, order, like된 item_id 각각을 받아온다.
@@ -54,10 +58,10 @@ exports.curationAlgorithm = function(callback){
 				var bskArr = dataArr[0];
 				var orderArr = dataArr[1];
 				var likeArr = dataArr[2];
-				// logger.debug('clickArr', clickArr);
-				// logger.debug('bskArr', bskArr);
-				// logger.debug('orderArr', orderArr);
-				// logger.debug('likeArr', likeArr);
+				// console.log('clickArr', clickArr);
+				// console.log('bskArr', bskArr);
+				// console.log('orderArr', orderArr);
+				// console.log('likeArr', likeArr);
 
 				// 시간가중치 적용
 				async.series({
@@ -79,14 +83,14 @@ exports.curationAlgorithm = function(callback){
 					}
 				}, function(err, result) {
 			    	if(err) logger.error(err);
-			    	logger.debug('result_time', result);
+			    	// logger.debug('result_time', result);
 			    	// callback(null, result);
 
 			    	// 항목가중치 적용
 			    	async.series({
 			      		clickArr: function(callback){
 			        		// logger.debug('click');
-			    			getItemWeight(result.clickArr, 0.05, callback);
+			    				getItemWeight(result.clickArr, 0.05, callback);
 			      		},
 			      		bskArr: function(callback){
 		      				// logger.debug('bsk');
@@ -102,7 +106,7 @@ exports.curationAlgorithm = function(callback){
 			      		}
 				    }, function(err, result){
 				    	if(err) logger.error(err);
-				    	// logger.debug('result_item', result);
+				    	// console.log('result_item', result);
 				    	// callback(null, result);
 
 				    	var clickWeightArr = result.clickArr;
@@ -148,10 +152,11 @@ exports.curationAlgorithm = function(callback){
 			    				callback(null, map);
 			    			}, function(err){
 			    				if(err) logger.error(err);
-			    				// logger.debug('map', map);
+			    				// console.log('map', map);
 			    				// callback(null, map);
 
 			    				var interestArr = [];
+
 			    				map.forEach(function(value, key){
 			    					var arr = new Array();
 			    					arr.push(parseInt(key));
@@ -159,32 +164,31 @@ exports.curationAlgorithm = function(callback){
 			    					interestArr.push(arr);
 			    				});
 
-			    				logger.debug('interestArr', interestArr);
+			    				console.log('interestArr', interestArr);
+			    				// callback(null, interestArr);
 
-								db_curation.getCurationInfo(interestArr, user_id, function(err, result){
-									if(err) logger.error(err);
-									callback(null);
-									// var inputArr = ['end','success',' '];
-									// db_curation.saveBatchInfo(function(inputArr, row){
-									// 	var success = false;
-									// 	if(row.affectedRows == 1){
-									// 		success = true;
-									// 	}
-									// 	conn.release();
-									// 	callback(success);
-									// });
-								});
-								// callback();
+									db_curation.getCurationInfo(interestArr, user_id, function(err){
+										if(err) logger.error(err);
+										// console.log('interestArr', interestArr);
+										// console.log('user_id', user_id);
+										// console.log('result', result);
+										callback(null);
+										// var inputArr = ['end','success',' '];
+										// db_curation.saveBatchInfo(function(inputArr, row){
+										// 	var success = false;
+										// 	if(row.affectedRows == 1){
+										// 		success = true;
+										// 	}
+										// 	conn.release();
+										// 	callback(success);
+										// });
+									});
 			    			}); // async.each(combineArr, function(data, callback)
-							// callback();
 		    			}); // interestArr에 push series
-						// callback();
 			    	}); // 항목가중치 series
-					// callback();
 				}); // 시간가중치 series
-				// callback();
 			}); // db_curation.findItemIdArr
-			// callback();
+
 
 		}, function(err){
 			if(err) logger.error(err);
@@ -192,6 +196,8 @@ exports.curationAlgorithm = function(callback){
 		});
 	}); // db_curation.findUserId
 };
+
+
 
 
 // 시간가중치 얻는 함수
@@ -214,6 +220,10 @@ function getTimeWeight(dataArr, callback){
 		timeWeightArr.push(itemArr);
 		// logger.debug('dayDiff', dayDiff);
 		// logger.debug('log', log);
+		console.log('dayDiff', dayDiff);
+		console.log('log', log);
+		console.log('timeWeightArr', timeWeightArr);
+
 		callback(null, timeWeightArr);
 	}, function(err){
 		if(err) logger.error(err);
@@ -250,5 +260,3 @@ function pushArr(dataArr, combineArr, callback){
 		callback(null, combineArr);
 	});
 }
-
-

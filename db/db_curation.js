@@ -118,7 +118,7 @@ exports.getCurationInfo = function(interestArr, user_id, callback){
 				deleteUserCurationInfo(user_id, conn, callback);
 			},
 			function(err, callback){
-				logger.debug('0) 에러만 없으면 Clustering, Euclidean, DB 처리 - ' + err);
+				// logger.debug('0) 에러만 없으면  	Clustering, Euclidean, DB 처리 - ' + err);
 				getStyleCluster(user_id, interestArr, conn, callback);
 			}
 		],
@@ -167,10 +167,10 @@ exports.getCurationInfo = function(interestArr, user_id, callback){
 				// else logger.debug('1) related_rows: ' + 'N');
 				if(related_rows[0]){
 					// (2) ~ (5)
-					// setEucliAfterSzCluster(user_id, interest_row, related_rows, conn, function(err){
+					setEucliAfterSzCluster(user_id, interest_row, related_rows, conn, function(err){
 						if(err) logger.error(err);
 						callback(null);
-					// });
+					});
 				}else{
 					callback(null);
 				}
@@ -226,9 +226,9 @@ exports.getCurationInfo = function(interestArr, user_id, callback){
 							sql = "insert into TBCRT (user_id, item_id, interest_id, score, euclidean_score, interest_weight, crt_regdate) values(?, ?, ?, ?, ?, ?, now())";
 							conn.query(sql, [user_id, item_id, interest_info.item_id, total_score, euclidean_score, interest_weight], function(err, row) {
 								if (err){
-									// logger.debug('6-1) 이미 존재하는 데이터');
+									logger.debug('6-1) 이미 존재하는 데이터');
 								}else{
-									// logger.debug('6-1) DB Insert into TBCRT');
+									logger.debug('6-1) DB Insert into TBCRT');
 									// logger.debug('6-1) user_id: ' + user_id + ', item_id: ' + item_id + ', total_score: ' + total_score);
 									// logger.debug('6-1) result (1이면 정상): ' + row.affectedRows);
 								}
